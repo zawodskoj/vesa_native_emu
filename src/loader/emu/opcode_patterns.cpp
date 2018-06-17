@@ -200,23 +200,23 @@ opcode_pattern_t cpu_t::m_opcodePatterns[] = {
         { 0x60 }, OPW_W,
         OP_RNM("pusha"),
         OP_ACTION({
-    auto esp = cpu.esp;
-cpu.pushw(cpu.eax);
-cpu.pushw(cpu.ecx);
-cpu.pushw(cpu.edx);
-cpu.pushw(cpu.ebx);
-cpu.pushw(esp);
-cpu.pushw(cpu.ebp);
-cpu.pushw(cpu.esi);
-cpu.pushw(cpu.edi);
-            })
+            auto esp = cpu.esp;
+            cpu.pushw(cpu.eax);
+            cpu.pushw(cpu.ecx);
+            cpu.pushw(cpu.edx);
+            cpu.pushw(cpu.ebx);
+            cpu.pushw(esp);
+            cpu.pushw(cpu.ebp);
+            cpu.pushw(cpu.esi);
+            cpu.pushw(cpu.edi);
+        })
     },
     {
         // POPA
         { 0x61 }, OPW_W,
         OP_RNM("popa"),
         OP_ACTION({
-                cpu.edi = cpu.popw();
+            cpu.edi = cpu.popw();
             cpu.esi = cpu.popw();
             cpu.ebp = cpu.popw();
             cpu.popw();
@@ -224,7 +224,7 @@ cpu.pushw(cpu.edi);
             cpu.edx = cpu.popw();
             cpu.ecx = cpu.popw();
             cpu.eax = cpu.popw();
-            })
+        })
     },
     {   // JC rel8
         { 0x72, P_BYTE_VAL }, OPW_B,
@@ -320,12 +320,13 @@ cpu.pushw(cpu.edi);
         { 0x8d, P_MODRM16 }, OPW_W,
         OP_RNM("lea", opcode_arg_t::EXACT, opcode_arg_t::MODRM_REF, OP_EXACT_NAMESEL(regNamesWord[OP_MODRM_REG(bytes[1])])),
         OP_ACTION({
-                reference_t xref = reference;
+            reference_t xref = reference;
             if (xref.refType != ref_type_t::MEMORY) {
-                printf("LEA on non-memory target");
+                printf("LEA on non-memory target\n");
+                while (1);
             }
             cpu.pokew(cpu_register_t(reference.modrmRegField), xref.ref.linearAddress.offset);
-            })
+        })
     },
     {   // NOP
         { 0x90 }, OPW_W,
@@ -336,11 +337,11 @@ cpu.pushw(cpu.edi);
         { P_BYTE_VAL }, OPW_W,
         OP_RNM_EXACT2("xchg", regNamesWord[bytes[0] - 0x90], "eax"),
         OP_ACTION({
-                auto tempv = cpu.peekw(cpu_register_t(bytes[0] - 0x90));
+            auto tempv = cpu.peekw(cpu_register_t(bytes[0] - 0x90));
             cpu.pokew(cpu_register_t(bytes[0] - 0x90), cpu.eax);
             cpu.pokew(REG_EAX, tempv);
-            }),
-                OP_PRED(bytes[0] >= 0x91 && bytes[0] <= 0x97)
+        }),
+        OP_PRED(bytes[0] >= 0x91 && bytes[0] <= 0x97)
     },
     {   // PUSHF
         { 0x9C }, OPW_W, 
@@ -361,10 +362,10 @@ cpu.pushw(cpu.edi);
         { 0xA4 }, OPW_B,
         OP_RNM("movsb"),
         OP_ACTION({
-                cpu.pokeb(cpu.es, cpu.edi, cpu.peekb(cpu.ds, cpu.esi));
+            cpu.pokeb(cpu.es, cpu.edi, cpu.peekb(cpu.ds, cpu.esi));
             cpu.edi += ((cpu.eflags & CPUFLAG_DIRECTION) ? -1 : 1) * sizeof(uint8_t);
             cpu.esi += ((cpu.eflags & CPUFLAG_DIRECTION) ? -1 : 1) * sizeof(uint8_t);
-            })
+        })
     },
     {   // TEST AL, imm8
         { 0xA8, P_BYTE_VAL }, OPW_B,
@@ -375,9 +376,9 @@ cpu.pushw(cpu.edi);
         { 0xAB }, OPW_W,
         OP_RNM("stosw"),
         OP_ACTION({
-                cpu.pokew(cpu.es, cpu.edi, cpu.eax);
+            cpu.pokew(cpu.es, cpu.edi, cpu.eax);
             cpu.edi += ((cpu.eflags & CPUFLAG_DIRECTION) ? -1 : 1) * sizeof(uint16_t);
-            })
+        })
     },
     {   // MOV reg, imm8
         { P_BYTE_VAL, P_BYTE_VAL }, OPW_B,
@@ -410,24 +411,24 @@ cpu.pushw(cpu.edi);
         { 0xCD, P_BYTE_VAL }, OPW_W,
         OP_RNM("int", opcode_arg_t::IMMEDIATE),
         OP_ACTION({
-                cpu.nestedInterruptCalls++;
+            cpu.nestedInterruptCalls++;
             cpu.pushw(cpu.eflags);
             cpu.pushw(cpu.cs);
             cpu.pushw(cpu.eip);
             auto farptr = cpu.peekd(0, matched[0] * sizeof(uint32_t));
             cpu.cs = farptr >> 16;
             cpu.eip = uint16_t(farptr);
-            })
+        })
     },
     {
         { 0xCF }, OPW_W,
         OP_RNM("iret"),
         OP_ACTION({
-                cpu.eip = cpu.popw();
+            cpu.eip = cpu.popw();
             cpu.cs = cpu.popw();
             cpu.eflags = cpu_flags_t(cpu.popw());
             cpu.nestedInterruptCalls--;
-            })
+        })
     },
     {   // ALU2 r/m8, 1
         { 0xd0, P_MODRM16 }, OPW_B,
@@ -448,9 +449,9 @@ cpu.pushw(cpu.edi);
         { 0xe8, P_WORD_VAL }, OPW_W,
         OP_RNM("call", opcode_arg_t::RELATIVE),
         OP_ACTION({
-                cpu.pushw(cpu.eip);
+            cpu.pushw(cpu.eip);
             cpu.eip += matched[0];
-            })
+        })
     },
     {   // JMP rel16
         { 0xe9, P_WORD_VAL }, OPW_W,
@@ -514,19 +515,19 @@ cpu.pushw(cpu.edi);
         { 0xFF, P_MODRM16 }, OPW_W,
         OP_RNM("call", opcode_arg_t::MODRM_REF),
         OP_ACTION({ 
-                cpu.pushw(cpu.eip);
+            cpu.pushw(cpu.eip);
             cpu.eip = reference_t(reference).getValue(cpu, ref_width_t::WORD);
-            }),
-                OP_PRED(OP_MODRM_REG(bytes[1]) == 2)
+        }),
+        OP_PRED(OP_MODRM_REG(bytes[1]) == 2)
     },
     {   // CALL far r/m16
         { 0xFF, P_MODRM16 }, OPW_W,
         OP_RNM("call far", opcode_arg_t::MODRM_REF),
         OP_ACTION({ 
-                printf("CALL FAR NOT SUPPORTED");
+            printf("CALL FAR NOT SUPPORTED");
             while (1); // not supported
-            }),
-                OP_PRED(OP_MODRM_REG(bytes[1]) == 3)
+        }),
+        OP_PRED(OP_MODRM_REG(bytes[1]) == 3)
     },
     {   // JMP r/m16
         { 0xFF, P_MODRM16 }, OPW_W,
@@ -538,10 +539,10 @@ cpu.pushw(cpu.edi);
         { 0xFF, P_MODRM16 }, OPW_W,
         OP_RNM("jmp far", opcode_arg_t::MODRM_REF),
         OP_ACTION({ 
-                printf("JMP FAR NOT SUPPORTED");
+            printf("JMP FAR NOT SUPPORTED");
             while (1); // not supported
-            }),
-                OP_PRED(OP_MODRM_REG(bytes[1]) == 5)
+        }),
+        OP_PRED(OP_MODRM_REG(bytes[1]) == 5)
     },
     {   // PUSH r/m16
         { 0xFF, P_MODRM16 }, OPW_W,
@@ -549,5 +550,5 @@ cpu.pushw(cpu.edi);
         OP_ACTION(cpu.pushw(reference_t(reference).getValue(cpu, ref_width_t::WORD))),
         OP_PRED(OP_MODRM_REG(bytes[1]) == 6)
     },
-            {{P_LASTPATTERN}, OPW_B, OP_RNM("LASTPATTERN"), OP_ACTION()}
+    {{P_LASTPATTERN}, OPW_B, OP_RNM("LASTPATTERN"), OP_ACTION()}
 };

@@ -49,10 +49,10 @@
         {
             "name": "Osdev",
             "includePath": [
-                "C:/WSL/opt/x86-64k/kernel/x86_64-elf/include/*",
-                "C:/WSL/opt/x86-64k/kernel/x86_64-elf/include/c++/7.3.0/*",
-                "C:/WSL/opt/x86-64k/kernel/x86_64-elf/include/c++/7.3.0/x86_64-elf/*",
-                "C:/WSL/opt/x86-64k/kernel/lib/gcc/x86_64-elf/7.3.0/include/*",
+                "C:/Users/zawod/AppData/Local/Packages/CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc/LocalState/rootfs/opt/x86-64k/64/x86_64-elf/include/*",
+                "C:/Users/zawod/AppData/Local/Packages/CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc/LocalState/rootfs/opt/x86-64k/64/x86_64-elf/include/c++/7.3.0/*",
+                "C:/Users/zawod/AppData/Local/Packages/CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc/LocalState/rootfs/opt/x86-64k/64/x86_64-elf/include/c++/7.3.0/x86_64-elf/*",
+                "C:/Users/zawod/AppData/Local/Packages/CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc/LocalState/rootfs/opt/x86-64k/64/lib/gcc/x86_64-elf/7.3.0/include/*",
                 "${workspaceFolder}",
                 "${workspaceFolder}/../common"
             ],
@@ -63,10 +63,10 @@
             "intelliSenseMode": "clang-x64",
             "browse": {
                 "path": [
-                    "C:/WSL/opt/x86-64k/kernel/x86_64-elf/include/*",
-                    "C:/WSL/opt/x86-64k/kernel/x86_64-elf/include/c++/7.3.0/*",
-                    "C:/WSL/opt/x86-64k/kernel/x86_64-elf/include/c++/7.3.0/x86_64-elf/*",
-                    "C:/WSL/opt/x86-64k/kernel/lib/gcc/x86_64-elf/7.3.0/include/*",
+                    "C:/Users/zawod/AppData/Local/Packages/CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc/LocalState/rootfs/opt/x86-64k/64/x86_64-elf/include/*",
+                    "C:/Users/zawod/AppData/Local/Packages/CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc/LocalState/rootfs/opt/x86-64k/64/x86_64-elf/include/c++/7.3.0/*",
+                    "C:/Users/zawod/AppData/Local/Packages/CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc/LocalState/rootfs/opt/x86-64k/64/x86_64-elf/include/c++/7.3.0/x86_64-elf/*",
+                    "C:/Users/zawod/AppData/Local/Packages/CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc/LocalState/rootfs/opt/x86-64k/64/lib/gcc/x86_64-elf/7.3.0/include/*",
                     "${workspaceFolder}",
                     "${workspaceFolder}/../common"
                 ],
