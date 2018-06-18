@@ -54,7 +54,8 @@
                 "C:/Users/zawod/AppData/Local/Packages/CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc/LocalState/rootfs/opt/x86-64k/64/x86_64-elf/include/c++/7.3.0/x86_64-elf/*",
                 "C:/Users/zawod/AppData/Local/Packages/CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc/LocalState/rootfs/opt/x86-64k/64/lib/gcc/x86_64-elf/7.3.0/include/*",
                 "${workspaceFolder}",
-                "${workspaceFolder}/../common"
+                "${workspaceFolder}/../common",
+                "${workspaceFolder}/thirdparty/include"
             ],
             "defines": [
                 "__linux__",
@@ -68,7 +69,8 @@
                     "C:/Users/zawod/AppData/Local/Packages/CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc/LocalState/rootfs/opt/x86-64k/64/x86_64-elf/include/c++/7.3.0/x86_64-elf/*",
                     "C:/Users/zawod/AppData/Local/Packages/CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc/LocalState/rootfs/opt/x86-64k/64/lib/gcc/x86_64-elf/7.3.0/include/*",
                     "${workspaceFolder}",
-                    "${workspaceFolder}/../common"
+                    "${workspaceFolder}/../common",
+                    "${workspaceFolder}/thirdparty/include"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""

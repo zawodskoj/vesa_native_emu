@@ -12,6 +12,7 @@ LOADER_CXXFLAGS=-ffreestanding \
 			    -ggdb \
 				-I. \
 				-I../common \
+				-Ithirdparty/include \
 				-Wall \
 				-Wextra \
 				-Werror \
