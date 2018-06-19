@@ -8,7 +8,7 @@
 
 namespace emu::patterns {
     enum aluflags_t : uint32_t {
-        ALUFLAG_NONE = 0,
+        ALUFLAG_NONE,
         ALUFLAG_CARRY = 0x0001,
         ALUFLAG_PARITY = 0x0004,
         ALUFLAG_ADJUST = 0x0010,
@@ -37,36 +37,41 @@ namespace emu::patterns {
     static inline uintptr_t linearFromSegmented(uint16_t segment, uint16_t offset) { return uintptr_t(segment) * 0x10 + offset; }
 
     class hardware_t {
+    private:
+        aluflags_t m_eflags;
+        int m_depth;
+        uint32_t m_registers[8];
+        uint16_t m_eip, m_segments[6];
     public:
-        virtual void poke(uintptr_t ptr, uint32_t value, word_size_t size) = 0;
-        virtual uint32_t peek(uintptr_t ptr, word_size_t size) = 0;
-        virtual uint32_t peekSigned(uintptr_t ptr, word_size_t size) = 0;
-        
-        virtual void out(uint16_t port, uint32_t value, word_size_t size) = 0;
-        virtual uint32_t in(uint16_t port, word_size_t size) = 0;
-        virtual uint32_t inSigned(uint16_t port, word_size_t size) = 0;
-        
-        virtual uint32_t reg(register_t reg, word_size_t size) = 0;
-        virtual uint32_t regSigned(register_t reg, word_size_t size) = 0;
-        virtual void setReg(register_t reg, uint32_t value, word_size_t size) = 0;
-        
-        virtual uint16_t sreg(seg_register_t reg) = 0;
-        virtual void setSreg(seg_register_t reg, uint16_t value) = 0;
-        
-        virtual uint16_t eip() = 0;
-        virtual void setEip(uint16_t value) = 0;
-        virtual void relJmpIf(bool condition, uint32_t value) = 0;
-        
-        virtual aluflags_t eflags() = 0;
-        virtual void setEflags(aluflags_t value) = 0;
-        virtual bool hasFlag(aluflags_t flag) = 0;
+        void poke(uintptr_t ptr, uint32_t value, word_size_t size);
+        uint32_t peek(uintptr_t ptr, word_size_t size);
+        uint32_t peekSigned(uintptr_t ptr, word_size_t size);
 
-        virtual void push(uint32_t value, word_size_t size) = 0;
-        virtual uint32_t pop(word_size_t size) = 0;
+        void out(uint16_t port, uint32_t value, word_size_t size);
+        uint32_t in(uint16_t port, word_size_t size);
+        uint32_t inSigned(uint16_t port, word_size_t size);
 
-        virtual int interruptDepth() = 0;
-        virtual void enterInterrupt() = 0;
-        virtual void leaveInterrupt() = 0;
+        uint32_t reg(register_t reg, word_size_t size);
+        uint32_t regSigned(register_t reg, word_size_t size);
+        void setReg(register_t reg, uint32_t value, word_size_t size);
+
+        uint16_t sreg(seg_register_t reg);
+        void setSreg(seg_register_t reg, uint16_t value);
+        
+        uint16_t eip();
+        void setEip(uint16_t value);
+        void setEipIf(bool condition, uint16_t value);
+        
+        aluflags_t eflags();
+        void setEflags(aluflags_t value);
+        bool hasFlag(aluflags_t flag);
+
+        void push(uint32_t value, word_size_t size);
+        uint32_t pop(word_size_t size);
+
+        int interruptDepth();
+        void enterInterrupt();
+        void leaveInterrupt();
     };
 
     class pattern_node_t {
@@ -131,8 +136,8 @@ namespace emu::patterns {
         uint32_t aXor(uint32_t lhs, uint32_t rhs, bool noModFlags = false);
         uint32_t aCmp(uint32_t lhs, uint32_t rhs, bool noModFlags = false);
 
-        virtual uint32_t dispatch(alu_opclass_t opClass, int opIndex, uint32_t lhs, uint32_t rhs, bool noModFlags = false) = 0;
-        virtual uint32_t multiplicative(alu_multiplicative_op_t op, uint32_t rhs, word_size_t size) = 0;
+        uint32_t dispatch(alu_opclass_t opClass, int opIndex, uint32_t lhs, uint32_t rhs, bool noModFlags = false);
+        void multiplicative(alu_multiplicative_op_t op, uint32_t rhs, word_size_t size);
     };
 
     using pattern_action_t = void(*)(hardware_t *hw, alu_t *alu, const word_size_t w, gsl::span<evaluated_arg_t> args);

@@ -82,47 +82,47 @@ const pattern_t patterns[] = {
         ),
     pattern_t("jo", { 0x70 })
         .withArgs({ relative.withSize(BYTE) })
-        .ACT(hw->relJmpIf(hw->hasFlag(ALUFLAG_OVERFLOW), ARG)),
+        .ACT(hw->setEipIf(hw->hasFlag(ALUFLAG_OVERFLOW), ARG)),
     pattern_t("jno", { 0x71 })
         .withArgs({ relative.withSize(BYTE) })
-        .ACT(hw->relJmpIf(!hw->hasFlag(ALUFLAG_OVERFLOW), ARG)),
+        .ACT(hw->setEipIf(!hw->hasFlag(ALUFLAG_OVERFLOW), ARG)),
     pattern_t("jb", { 0x72 })
         .withArgs({ relative.withSize(BYTE) })
-        .ACT(hw->relJmpIf(hw->hasFlag(ALUFLAG_CARRY), ARG)),
+        .ACT(hw->setEipIf(hw->hasFlag(ALUFLAG_CARRY), ARG)),
     pattern_t("jnb", { 0x73 })
         .withArgs({ relative.withSize(BYTE) })
-        .ACT(hw->relJmpIf(!hw->hasFlag(ALUFLAG_CARRY), ARG)),
+        .ACT(hw->setEipIf(!hw->hasFlag(ALUFLAG_CARRY), ARG)),
     pattern_t("jz", { 0x74 })
         .withArgs({ relative.withSize(BYTE) })
-        .ACT(hw->relJmpIf(hw->hasFlag(ALUFLAG_ZERO), ARG)),
+        .ACT(hw->setEipIf(hw->hasFlag(ALUFLAG_ZERO), ARG)),
     pattern_t("jnz", { 0x75 })
         .withArgs({ relative.withSize(BYTE) })
-        .ACT(hw->relJmpIf(!hw->hasFlag(ALUFLAG_ZERO), ARG)),
+        .ACT(hw->setEipIf(!hw->hasFlag(ALUFLAG_ZERO), ARG)),
     pattern_t("jbe", { 0x76 })
         .withArgs({ relative.withSize(BYTE) })
-        .ACT(hw->relJmpIf(hw->hasFlag(ALUFLAG_ZERO) || hw->hasFlag(ALUFLAG_CARRY), ARG)),
+        .ACT(hw->setEipIf(hw->hasFlag(ALUFLAG_ZERO) || hw->hasFlag(ALUFLAG_CARRY), ARG)),
     pattern_t("jnbe", { 0x77 })
         .withArgs({ relative.withSize(BYTE) })
-        .ACT(hw->relJmpIf(!hw->hasFlag(ALUFLAG_ZERO) && !hw->hasFlag(ALUFLAG_CARRY), ARG)),
+        .ACT(hw->setEipIf(!hw->hasFlag(ALUFLAG_ZERO) && !hw->hasFlag(ALUFLAG_CARRY), ARG)),
     pattern_t("js", { 0x78 })
         .withArgs({ relative.withSize(BYTE) })
-        .ACT(hw->relJmpIf(hw->hasFlag(ALUFLAG_SIGN), ARG)),
+        .ACT(hw->setEipIf(hw->hasFlag(ALUFLAG_SIGN), ARG)),
     pattern_t("jns", { 0x79 })
         .withArgs({ relative.withSize(BYTE) })
-        .ACT(hw->relJmpIf(!hw->hasFlag(ALUFLAG_SIGN), ARG)),
+        .ACT(hw->setEipIf(!hw->hasFlag(ALUFLAG_SIGN), ARG)),
     // no parity jumps (parity flag is not supported)
     pattern_t("jl", { 0x7c })
         .withArgs({ relative.withSize(BYTE) })
-        .ACT(hw->relJmpIf(hw->hasFlag(ALUFLAG_SIGN) != hw->hasFlag(ALUFLAG_OVERFLOW), ARG)),
+        .ACT(hw->setEipIf(hw->hasFlag(ALUFLAG_SIGN) != hw->hasFlag(ALUFLAG_OVERFLOW), ARG)),
     pattern_t("jge", { 0x7d })
         .withArgs({ relative.withSize(BYTE) })
-        .ACT(hw->relJmpIf(hw->hasFlag(ALUFLAG_SIGN) == hw->hasFlag(ALUFLAG_OVERFLOW), ARG)),
+        .ACT(hw->setEipIf(hw->hasFlag(ALUFLAG_SIGN) == hw->hasFlag(ALUFLAG_OVERFLOW), ARG)),
     pattern_t("jle", { 0x7e })
         .withArgs({ relative.withSize(BYTE) })
-        .ACT(hw->relJmpIf(hw->hasFlag(ALUFLAG_ZERO) || (hw->hasFlag(ALUFLAG_SIGN) != hw->hasFlag(ALUFLAG_OVERFLOW)), ARG)),
+        .ACT(hw->setEipIf(hw->hasFlag(ALUFLAG_ZERO) || (hw->hasFlag(ALUFLAG_SIGN) != hw->hasFlag(ALUFLAG_OVERFLOW)), ARG)),
     pattern_t("jg", { 0x7f })
         .withArgs({ relative.withSize(BYTE) })
-        .ACT(hw->relJmpIf(!hw->hasFlag(ALUFLAG_ZERO) && (hw->hasFlag(ALUFLAG_SIGN) == hw->hasFlag(ALUFLAG_OVERFLOW)), ARG)),
+        .ACT(hw->setEipIf(!hw->hasFlag(ALUFLAG_ZERO) && (hw->hasFlag(ALUFLAG_SIGN) == hw->hasFlag(ALUFLAG_OVERFLOW)), ARG)),
     pattern_t(selectByRangeIx({ "add", "or", "adc", "sbb", "and", "sub", "xor", "cmp" }), { encodedAluOpcode(0x80) })
         .withArgs({ aluLeft, aluRight, rangeIx })
         .ACT(LHS.set(alu->dispatch(ALU_OP80, args[2].deref(), LHS, RHS))),
