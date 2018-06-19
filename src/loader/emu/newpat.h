@@ -4,7 +4,7 @@
 #include <utility>
 #include <gsl/span>
 
-#define NEWPAT_ACT_LAM_WRAP(...) act([](hardware_t &hw, alu_t &alu, word_size_t w, gsl::span<evaluated_arg_t> args) -> void { __VA_ARGS__; })
+#define NEWPAT_ACT_LAM_WRAP(...) act([](hardware_t *hw, alu_t *alu, const word_size_t w, const gsl::span<evaluated_arg_t> args) -> void { __VA_ARGS__; })
 
 namespace emu::patterns {
     enum aluflags_t : uint32_t {
@@ -34,39 +34,39 @@ namespace emu::patterns {
         DWORD = 4
     };
 
-    uintptr_t linearFromSegmented(uint16_t segment, uint16_t offset);
+    static inline uintptr_t linearFromSegmented(uint16_t segment, uint16_t offset) { return uintptr_t(segment) * 0x10 + offset; }
 
     class hardware_t {
     public:
-        void poke(uintptr_t ptr, uint32_t value, word_size_t size);
-        uint32_t peek(uintptr_t ptr, word_size_t size);
-        uint32_t peekSigned(uintptr_t ptr, word_size_t size);
-
-        void out(uint16_t port, uint32_t value, word_size_t size);
-        uint32_t in(uint16_t port, word_size_t size);
-        uint32_t inSigned(uint16_t port, word_size_t size);
-
-        uint32_t reg(register_t reg, word_size_t size);
-        uint32_t regSigned(register_t reg, word_size_t size);
-        void setReg(register_t reg, uint32_t value, word_size_t size);
+        virtual void poke(uintptr_t ptr, uint32_t value, word_size_t size) = 0;
+        virtual uint32_t peek(uintptr_t ptr, word_size_t size) = 0;
+        virtual uint32_t peekSigned(uintptr_t ptr, word_size_t size) = 0;
         
-        uint16_t sreg(seg_register_t reg);
-        void setSreg(seg_register_t reg, uint16_t value);
-
-        uint16_t eip();
-        void setEip(uint16_t value);
-        void relJmpIf(bool condition, uint32_t value);
+        virtual void out(uint16_t port, uint32_t value, word_size_t size) = 0;
+        virtual uint32_t in(uint16_t port, word_size_t size) = 0;
+        virtual uint32_t inSigned(uint16_t port, word_size_t size) = 0;
         
-        aluflags_t eflags();
-        void setEflags(aluflags_t value);
-        bool hasFlag(aluflags_t flag);
+        virtual uint32_t reg(register_t reg, word_size_t size) = 0;
+        virtual uint32_t regSigned(register_t reg, word_size_t size) = 0;
+        virtual void setReg(register_t reg, uint32_t value, word_size_t size) = 0;
+        
+        virtual uint16_t sreg(seg_register_t reg) = 0;
+        virtual void setSreg(seg_register_t reg, uint16_t value) = 0;
+        
+        virtual uint16_t eip() = 0;
+        virtual void setEip(uint16_t value) = 0;
+        virtual void relJmpIf(bool condition, uint32_t value) = 0;
+        
+        virtual aluflags_t eflags() = 0;
+        virtual void setEflags(aluflags_t value) = 0;
+        virtual bool hasFlag(aluflags_t flag) = 0;
 
-        void push(uint32_t value, word_size_t size);
-        uint32_t pop(word_size_t size);
+        virtual void push(uint32_t value, word_size_t size) = 0;
+        virtual uint32_t pop(word_size_t size) = 0;
 
-        int interruptDepth();
-        void enterInterrupt();
-        void leaveInterrupt();
+        virtual int interruptDepth() = 0;
+        virtual void enterInterrupt() = 0;
+        virtual void leaveInterrupt() = 0;
     };
 
     class pattern_node_t {
@@ -75,13 +75,13 @@ namespace emu::patterns {
         pattern_node_t(int v) {}
     };
 
-    const pattern_node_t modrm = pattern_node_t();
-    const pattern_node_t sizeAndOrderMarked(uint8_t byte) { return pattern_node_t(); }
-    const pattern_node_t sizeMarked(uint8_t byte) { return pattern_node_t(); }
-    const pattern_node_t aluOpcode(uint8_t byte) { return pattern_node_t(); }
-    const pattern_node_t encodedAluOpcode(uint8_t byte) { return pattern_node_t(); }
-    const pattern_node_t ranged(uint8_t from, uint8_t to) { return pattern_node_t(); }
-    const pattern_node_t strOp(uint8_t byte) { return pattern_node_t(); }
+    static inline const pattern_node_t modrm = pattern_node_t();
+    static inline const pattern_node_t sizeAndOrderMarked(uint8_t byte) { return pattern_node_t(); }
+    static inline const pattern_node_t sizeMarked(uint8_t byte) { return pattern_node_t(); }
+    static inline const pattern_node_t aluOpcode(uint8_t byte) { return pattern_node_t(); }
+    static inline const pattern_node_t encodedAluOpcode(uint8_t byte) { return pattern_node_t(); }
+    static inline const pattern_node_t ranged(uint8_t from, uint8_t to) { return pattern_node_t(); }
+    static inline const pattern_node_t strOp(uint8_t byte) { return pattern_node_t(); }
 
     class pattern_arg_t {
     public:
@@ -90,32 +90,38 @@ namespace emu::patterns {
         const pattern_arg_t withByteSize() const { return pattern_arg_t(); }
     };
 
-    const pattern_arg_t aluLeft = pattern_arg_t();
-    const pattern_arg_t aluRight = pattern_arg_t();
-    const pattern_arg_t modrmRegValue = pattern_arg_t();
-    const pattern_arg_t modrmRegRegister = pattern_arg_t();
-    const pattern_arg_t modrmSegRegister = pattern_arg_t();
-    const pattern_arg_t modrmReference = pattern_arg_t();
-    const pattern_arg_t immediate = pattern_arg_t();
-    const pattern_arg_t memoffset = pattern_arg_t();
-    const pattern_arg_t relative = pattern_arg_t();
-    const pattern_arg_t rangeIx = pattern_arg_t();
-    const pattern_arg_t rangeReg = pattern_arg_t();
-    const pattern_arg_t reg(register_t reg) { return pattern_arg_t(); };
-    const pattern_arg_t sreg(seg_register_t reg) { return pattern_arg_t(); };
-    const pattern_arg_t exact(uint32_t value) { return pattern_arg_t(); };
+    static inline const pattern_arg_t aluLeft = pattern_arg_t();
+    static inline const pattern_arg_t aluRight = pattern_arg_t();
+    static inline const pattern_arg_t modrmRegValue = pattern_arg_t();
+    static inline const pattern_arg_t modrmRegRegister = pattern_arg_t();
+    static inline const pattern_arg_t modrmSegRegister = pattern_arg_t();
+    static inline const pattern_arg_t modrmReference = pattern_arg_t();
+    static inline const pattern_arg_t immediate = pattern_arg_t();
+    static inline const pattern_arg_t memoffset = pattern_arg_t();
+    static inline const pattern_arg_t relative = pattern_arg_t();
+    static inline const pattern_arg_t rangeIx = pattern_arg_t();
+    static inline const pattern_arg_t rangeReg = pattern_arg_t();
+    static inline const pattern_arg_t reg(register_t reg) { return pattern_arg_t(); };
+    static inline const pattern_arg_t sreg(seg_register_t reg) { return pattern_arg_t(); };
+    static inline const pattern_arg_t exact(uint32_t value) { return pattern_arg_t(); };
 
     class evaluated_arg_t {
     public:
-        uint32_t deref();
-        void set(uint32_t value);
+        uint32_t deref() { return 0; }
+        void set(uint32_t value) { }
         operator uint32_t() { return deref(); }
     };
 
     enum alu_opclass_t { ALU_OP80, ALU_OPC0, ALU_OPF6 };
+    enum alu_op80_op_t { ALU_ADD, ALU_OR, ALU_ADC, ALU_SBB, ALU_AND, ALU_SUB, ALU_XOR, ALU_CMP };
+    enum alu_multiplicative_op_t { ALU_MUL = 4, ALU_IMUL, ALU_DIV, ALU_IDIV };
 
     class alu_t {
+    private:
+        hardware_t *m_hw;
     public:
+        alu_t(hardware_t *hw) : m_hw(hw) {}
+
         uint32_t aAdd(uint32_t lhs, uint32_t rhs, bool noModFlags = false);
         uint32_t aOr(uint32_t lhs, uint32_t rhs, bool noModFlags = false);
         uint32_t aAdc(uint32_t lhs, uint32_t rhs, bool noModFlags = false);
@@ -123,24 +129,25 @@ namespace emu::patterns {
         uint32_t aAnd(uint32_t lhs, uint32_t rhs, bool noModFlags = false);
         uint32_t aSub(uint32_t lhs, uint32_t rhs, bool noModFlags = false);
         uint32_t aXor(uint32_t lhs, uint32_t rhs, bool noModFlags = false);
-        uint32_t aCmp(uint32_t lhs, uint32_t rhs, bool noModFlags = false); /* equ to sub, maybe remove? */
+        uint32_t aCmp(uint32_t lhs, uint32_t rhs, bool noModFlags = false);
 
-        uint32_t dispatch(alu_opclass_t opClass, int opIndex, uint32_t lhs, uint32_t rhs, bool noModFlags = false);
+        virtual uint32_t dispatch(alu_opclass_t opClass, int opIndex, uint32_t lhs, uint32_t rhs, bool noModFlags = false) = 0;
+        virtual uint32_t multiplicative(alu_multiplicative_op_t op, uint32_t rhs, word_size_t size) = 0;
     };
 
-    using pattern_action_t = void(*)(hardware_t &hw, alu_t &alu, word_size_t w, gsl::span<evaluated_arg_t> args);
+    using pattern_action_t = void(*)(hardware_t *hw, alu_t *alu, const word_size_t w, gsl::span<evaluated_arg_t> args);
     
     class pattern_name_t {
     public:
         pattern_name_t() {}
-        pattern_name_t(const char *singleName);
+        pattern_name_t(const char *singleName) {}
 
-        const char *getName(...);
+        const char *getName(...) { return nullptr; }
     };
 
-    const pattern_name_t selectByRangeIx(std::initializer_list<const char*> names) { return pattern_name_t(); }
-    const pattern_name_t selectByRegIx(std::initializer_list<const char*> names) { return pattern_name_t(); }
-    const pattern_name_t withSizePostfix(std::initializer_list<const char*> names) { return pattern_name_t(); }
+    static inline const pattern_name_t selectByRangeIx(std::initializer_list<const char*> names) { return pattern_name_t(); }
+    static inline const pattern_name_t selectByRegIx(std::initializer_list<const char*> names) { return pattern_name_t(); }
+    static inline const pattern_name_t withSizePostfix(std::initializer_list<const char*> names) { return pattern_name_t(); }
 
     class pattern_t {
     private:
@@ -169,5 +176,5 @@ namespace emu::patterns {
         const pattern_t act(pattern_action_t action) const { return pattern_t(pattern_name_t(), {}); }
     };
 
-    const pattern_t last_pattern = pattern_t(pattern_name_t(), {});
+    static inline const pattern_t last_pattern = pattern_t(pattern_name_t(), {});
 }
